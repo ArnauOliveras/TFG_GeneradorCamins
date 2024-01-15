@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 public class AntController : MonoBehaviour
 {
     public float speed = 100;
+    public float rotationSpeed = 50;
     public float maxSlope = 35;
     float distanceNextPos = 3;
 
@@ -22,6 +23,7 @@ public class AntController : MonoBehaviour
 
 
     Vector3 direction;
+    Vector3 thisDirection;
 
     void Start()
     {
@@ -38,6 +40,7 @@ public class AntController : MonoBehaviour
         nextPositions = new Vector3[nextPosQuantity];
 
         direction = (destination - transform.position).normalized;
+        thisDirection = direction;
     }
 
     //private void OnDrawGizmos()
@@ -97,60 +100,64 @@ public class AntController : MonoBehaviour
         }
 
         direction = l_direction;
-        transform.Translate(l_direction * speed * Time.deltaTime);
+
+
+        thisDirection = Vector3.MoveTowards(thisDirection, direction, rotationSpeed * Time.deltaTime);
+
+        transform.Translate(thisDirection * speed * Time.deltaTime);
     }
 
 
     Vector3 NewDirection()
     {
 
-        Vector3 direccionAlNido = (destination - transform.position).normalized;
-        Vector3 mejorDireccion = direccionAlNido;
-        float mejorPuntaje = float.MaxValue;
+        Vector3 directionToDestination = (destination - transform.position).normalized;
+        Vector3 bestDirection = directionToDestination;
+        float bestScore = float.MaxValue;
 
-        int muestras = 10;
-        for (int i = 0; i < muestras; i++)
+        int samples = 10;
+        for (int i = 0; i < samples; i++)
         {
 
-            float angulo = (i / (float)muestras) * 360f;
-            Vector3 direccionPrueba = Quaternion.Euler(0, angulo, 0) * direccionAlNido;
+            float angle = (i / (float)samples) * 360f;
+            Vector3 directionSample = Quaternion.Euler(0, angle, 0) * directionToDestination;
             Vector3 testPos = Vector3.zero;
 
             for (int u = 1; u <= nextPosQuantity; u++)
             {
-                nextPositions[u - 1] = transform.position + direccionPrueba * distanceNextPos * u;
+                nextPositions[u - 1] = transform.position + directionSample * distanceNextPos * u;
             }
 
             bool l_noValid = false;
 
-            foreach (Vector3 puntoPrueba in nextPositions)
+            foreach (Vector3 samplePos in nextPositions)
             {
-                if (NoValidSlope(puntoPrueba))
+                if (NoValidSlope(samplePos))
                 {
                     l_noValid = true;
                     break;
                 }
 
-                testPos = puntoPrueba;
+                testPos = samplePos;
             }
 
-            if (!l_noValid)
+            if (!l_noValid) // If the direction score less, it's better to choose the path
             {
-                float distanciaAlNido = Vector3.Distance(testPos, destination);
-                float puntaje = distanciaAlNido;
+                float distanceToDestination = Vector3.Distance(testPos, destination);
+                float score = distanceToDestination;
 
-                print(puntaje);
-                if (puntaje < mejorPuntaje)
+                print(score);
+                if (score < bestScore)
                 {
-                    mejorPuntaje = puntaje;
-                    mejorDireccion = direccionPrueba;
+                    bestScore = score;
+                    bestDirection = directionSample;
                 }
             }
 
 
         }
 
-        return mejorDireccion.normalized;
+        return bestDirection.normalized;
     }
 
 

@@ -97,4 +97,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 100
+  rotationSpeed: 20
   maxSlope: 35
+  nextPositions: []
