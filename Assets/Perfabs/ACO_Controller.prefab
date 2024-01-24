@@ -44,4 +44,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905aa8b496e9586499adae617e55f5d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DestVillage: {fileID: 0}
+  Ant: {fileID: 6270018109062566454, guid: af9349f68ad20e947b0cf6ab0b059d52, type: 3}
+  AntMaster: {fileID: 8093283957188853392, guid: b7eb212c11d0fc4418e93eb4b6610454, type: 3}
+  initVillage: {fileID: 0}
+  destVillage: {fileID: 0}
+  terrain: {fileID: 0}
+  timeTest: 30
+  speed: 7
+  rotationSpeed: 10000
+  maxSlope: 35
+  distanceNextPos: 3
+  nextPosQuantity: 5
+  samplesDirections: 10
+  MAXpheromones: 50
+  distancePheromones: 30
+  distanceToDetectPheromones: 100
+  test_P1_On: 1
+  test_P2_On: 0
+  test_P3_On: 0
