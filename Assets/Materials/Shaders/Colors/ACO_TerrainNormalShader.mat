@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ACO_TerrainNormalShader
+  m_Shader: {fileID: 4800000, guid: c8a1eb91285a2c24b9a69c8a13288c21, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Angle: 25
+    - _Width: 10
+    m_Colors:
+    - _Color: {r: 0.13514416, g: 0.4188679, b: 0.15196882, a: 1}
+    - _Color2: {r: 0.37694624, g: 0.39607844, b: 0, a: 1}
+    - _Color3: {r: 0.4056604, g: 0.032041, b: 0, a: 1}
+  m_BuildTextureStacks: []
