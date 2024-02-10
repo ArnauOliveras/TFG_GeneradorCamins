@@ -25,8 +25,8 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Angle: 25
-    - _Width: 10
+    - _Angle: 35
+    - _Width: 0
     m_Colors:
     - _Color: {r: 0.13514416, g: 0.4188679, b: 0.15196882, a: 1}
     - _Color2: {r: 0.37694624, g: 0.39607844, b: 0, a: 1}

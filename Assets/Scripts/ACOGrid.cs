@@ -18,7 +18,7 @@ public class ACOGrid : MonoBehaviour
         {
             foreach (ACONodeGrid nodeGrid in nodeGridsList)
             {
-                if (nodeGrid.slopePoint < 25f)
+                if (nodeGrid.slopePoint < 35f)
                     Gizmos.color = Color.cyan;
                 else
                     Gizmos.color = Color.yellow;

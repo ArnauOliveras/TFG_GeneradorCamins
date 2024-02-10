@@ -37,22 +37,25 @@ public class ACOGridTerrainSettings : MonoBehaviour
                     Vector3 coordenadaNormalizada = new Vector3((l_Position.x - terrain.GetPosition().x) / terrain.terrainData.size.x, 0, (l_Position.z - terrain.GetPosition().z) / terrain.terrainData.size.z);
                     Vector3 normal = terrain.terrainData.GetInterpolatedNormal(coordenadaNormalizada.x, coordenadaNormalizada.z);
                     float actual_normal = Vector3.Angle(normal, Vector3.up);
-                    if(actual_normal<=MaxSlope)
+                    if (actual_normal <= MaxSlope)
                         nodeGridsList.Add(new ACONodeGrid(l_Position, actual_normal));
                 }
             }
 
-            foreach(ACONodeGrid nodeGrid in nodeGridsList)
+            foreach (ACONodeGrid nodeGrid in nodeGridsList)
             {
                 nodeGrid.SetACOGrid(nodeGridsList, distanceEachGridNode);
                 nodeGrid.SetNeighborNodes();
             }
 
+            if (GetComponent<ACOGrid>() != null)
+                DestroyImmediate(GetComponent<ACOGrid>());
+
             ACOGrid acoGrid = gameObject.AddComponent<ACOGrid>();
             acoGrid.SetACOGrid(nodeGridsList);
 
-            Debug.Log("Grid Done With "+ nodeGridsList.Count+" Nodes");
-            
+            Debug.Log("Grid Done With " + nodeGridsList.Count + " Nodes");
+
         }
         else
             Debug.LogError("Terrain component not found.");
