@@ -529,13 +529,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905aa8b496e9586499adae617e55f5d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceEachGridNode: 10
+  distanceEachGridNode: 5
   maxSlope: 35
   initialVillage: {fileID: 146991697}
   destinationVillage: {fileID: 1494515965}
-  destinationNode: 399
+  destinationNode: 1600
   drawAntDebug: 3
-  antSpawnNum: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

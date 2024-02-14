@@ -23,8 +23,7 @@ public class ACOManeger : MonoBehaviour
     [Header("Draw Settings")]
     [Range(1, 3)]
     public int drawAntDebug = 3;
-    [Range(1, 3)]
-    public int antSpawnNum = 3;
+    int antSpawnNum = 3;
 
     public void ACOBakeGrid()
     {
