@@ -12,6 +12,10 @@ public class ACOManegerButtons : Editor
 
         base.OnInspectorGUI();
 
+        if (GUILayout.Button("Bake Grid"))
+        {
+            maneger.ACOBakeGrid();
+        }
         if (GUILayout.Button("Create Pathway"))
         {
             maneger.CreatePathway();
@@ -19,6 +23,10 @@ public class ACOManegerButtons : Editor
         if (GUILayout.Button("Draw Path Ant Selected"))
         {
             maneger.DrawPathAnt();
+        }
+        if (GUILayout.Button("Draw Texture"))
+        {
+            maneger.DrawTexture();
         }
     }
 }

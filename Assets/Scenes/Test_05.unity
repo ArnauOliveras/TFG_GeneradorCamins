@@ -165,7 +165,6 @@ GameObject:
   - component: {fileID: 1702971200}
   - component: {fileID: 1702971199}
   - component: {fileID: 1702971198}
-  - component: {fileID: 1702971202}
   - component: {fileID: 1702971201}
   m_Layer: 0
   m_Name: Terrain
@@ -260,24 +259,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905aa8b496e9586499adae617e55f5d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  distanceEachGridNode: 10
+  maxSlope: 35
   initialVillage: {fileID: 0}
   destinationVillage: {fileID: 0}
-  drawAntDebug: 1
-  antSpawnNum: 2
---- !u!114 &1702971202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1702971197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9e589eeb3a8eeb44a88887fc6c298aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  distanceEachGridNode: 1
-  MaxSlope: 35
+  destinationNode: 0
+  drawAntDebug: 3
+  antSpawnNum: 3
 --- !u!1 &2129385080
 GameObject:
   m_ObjectHideFlags: 0
