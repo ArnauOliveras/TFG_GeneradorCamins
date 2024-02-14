@@ -619,7 +619,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialVillage: {fileID: 1276735865}
   destinationVillage: {fileID: 1925681014}
-  drawAntDebug: 1
+  destinationNode: 0
+  drawAntDebug: 3
+  antSpawnNum: 3
+  MaxSlope: 35
 --- !u!114 &1308207300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,8 +635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9e589eeb3a8eeb44a88887fc6c298aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceEachGridNode: 10
-  MaxSlope: 35
+  distanceEachGridNode: 4
 --- !u!1001 &1925681012
 PrefabInstance:
   m_ObjectHideFlags: 0

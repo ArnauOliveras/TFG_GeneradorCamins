@@ -5,54 +5,70 @@ using UnityEngine;
 
 public class ACONodeGrid
 {
+    public int ID = -1;
     public Vector3 position;
     public float slopePoint;
 
-    public List<ACONodeGrid> neighborNodesGridsList = new List<ACONodeGrid>();
+    public List<int> neighborNodesGridsList = new List<int>();
     bool haveNeighbor = false;
 
     public bool initialNode = false;
     public bool destinationNode = false;
 
-    List<ACONodeGrid> nodeGridsList = new List<ACONodeGrid>();
-    float distanceEachGridNode;
 
-    public ACONodeGrid(Vector3 l_position, float l_slope)
+    public float pheromonesPower;
+
+    float maxSlope;
+
+    public ACONodeGrid(Vector3 l_position, float l_slope, int l_ID, float l_MaxSlope)
     {
         position = l_position;
         slopePoint = l_slope;
+        ID = l_ID;
+        pheromonesPower = 0;
+        maxSlope = l_MaxSlope;
     }
 
-    public void SetACOGrid(List<ACONodeGrid> l_grid, float l_distanceEachGridNode)
-    {
-        nodeGridsList = l_grid;
-        distanceEachGridNode = l_distanceEachGridNode;
 
-    }
-
-    public void SetNeighborNodes()
+    public void SetNeighborNodes(List<ACONodeGrid> l_gridNodes, int l_gridZ, int l_gridX)
     {
         if (!haveNeighbor)
         {
-            ACONodeGrid l_node1 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x + distanceEachGridNode, nd.position.y, position.z)) < 0.5f);
-            ACONodeGrid l_node2 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x - distanceEachGridNode, nd.position.y, position.z)) < 0.5f);
-            ACONodeGrid l_node3 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x, nd.position.y, position.z + distanceEachGridNode)) < 0.5f);
-            ACONodeGrid l_node4 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x, nd.position.y, position.z - distanceEachGridNode)) < 0.5f);
+            List<ACONodeGrid> l_nodes = new List<ACONodeGrid>();
+            for (int i = 0; i < 8; i++)
+                l_nodes.Add(null);
 
-            ACONodeGrid l_node5 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x + distanceEachGridNode, nd.position.y, position.z + distanceEachGridNode)) < 0.5f);
-            ACONodeGrid l_node6 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x - distanceEachGridNode, nd.position.y, position.z - distanceEachGridNode)) < 0.5f);
-            ACONodeGrid l_node7 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x - distanceEachGridNode, nd.position.y, position.z + distanceEachGridNode)) < 0.5f);
-            ACONodeGrid l_node8 = nodeGridsList.Find(nd => Vector3.Distance(nd.position, new Vector3(position.x + distanceEachGridNode, nd.position.y, position.z - distanceEachGridNode)) < 0.5f);
+            /*
+                7   0   1
+                6   @   2
+                5   4   3
+            */
 
-            neighborNodesGridsList.Add(l_node1);
-            neighborNodesGridsList.Add(l_node2);
-            neighborNodesGridsList.Add(l_node3);
-            neighborNodesGridsList.Add(l_node4);
-            neighborNodesGridsList.Add(l_node5);
-            neighborNodesGridsList.Add(l_node6);
-            neighborNodesGridsList.Add(l_node7);
-            neighborNodesGridsList.Add(l_node8);
+            if (((float)ID + 1) % (float)l_gridX != 0)
+            {
+                l_nodes[0] = ID + 1 < l_gridNodes.Count ? l_gridNodes[ID + 1] : null;
+                l_nodes[1] = ID + l_gridZ + 1 < l_gridNodes.Count ? l_gridNodes[ID + l_gridZ + 1] : null;
+                l_nodes[7] = ID - l_gridZ + 1 >= 0 ? l_gridNodes[ID - l_gridZ + 1] : null;
+            }
 
+            if ((float)ID % (float)l_gridX != 0)
+            {
+                l_nodes[3] = ID + l_gridZ - 1 < l_gridNodes.Count ? l_gridNodes[ID + l_gridZ - 1] : null;
+                l_nodes[4] = ID - 1 >= 0 ? l_gridNodes[ID - 1] : null;
+                l_nodes[5] = ID - l_gridZ - 1 >= 0 ? l_gridNodes[ID - l_gridZ - 1] : null;
+            }
+
+            l_nodes[6] = ID - l_gridZ >= 0 ? l_gridNodes[ID - l_gridZ] : null;
+            l_nodes[2] = ID + l_gridZ < l_gridNodes.Count ? l_gridNodes[ID + l_gridZ] : null;
+
+
+            foreach (ACONodeGrid node in l_nodes)
+            {
+                if (node != null && node.slopePoint <= maxSlope)
+                    neighborNodesGridsList.Add(node.ID);
+                else
+                    neighborNodesGridsList.Add(-1);
+            }
             haveNeighbor = true;
         }
     }

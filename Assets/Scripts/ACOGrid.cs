@@ -8,30 +8,7 @@ using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 public class ACOGrid : MonoBehaviour
 {
-    public static List<ACONodeGrid> nodeGridsList; 
-
-    bool showGuizmos = false; 
-
-    private void OnDrawGizmos()
-    {
-        if (showGuizmos)
-        {
-            foreach (ACONodeGrid nodeGrid in nodeGridsList)
-            {
-                if (nodeGrid.slopePoint < 35f)
-                    Gizmos.color = Color.cyan;
-                else
-                    Gizmos.color = Color.yellow;
-                
-                if (nodeGrid.initialNode)
-                    Gizmos.color = Color.black;
-                if (nodeGrid.destinationNode)
-                    Gizmos.color = Color.black;
-
-                Gizmos.DrawSphere(nodeGrid.position, 1);
-            }
-        }
-    }
+    public List<ACONodeGrid> nodeGridsList; 
 
     public List<ACONodeGrid> GetACOGrid()
     {
@@ -40,17 +17,6 @@ public class ACOGrid : MonoBehaviour
     public void SetACOGrid(List<ACONodeGrid> grid)
     {
         nodeGridsList = grid;
-
-        List<Vector3> vertices = new List<Vector3>();
-        List<int> triangles = new List<int>();
-        int i = 0;
-
-        foreach (ACONodeGrid nodeGrid in nodeGridsList)
-        {
-            vertices.Add(nodeGrid.position);
-            triangles.Add(1);
-            i++;
-        }
     }
 
     public void ACOShowGrid()
@@ -67,5 +33,39 @@ public class ACOGrid : MonoBehaviour
     public void DestroyThisGrid()
     {
         DestroyImmediate(this);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    bool showGuizmos = false; 
+    private void OnDrawGizmos()
+    {
+        if (showGuizmos)
+        {
+            foreach (ACONodeGrid nodeGrid in nodeGridsList)
+            {
+                if (nodeGrid.slopePoint < 35f)
+                    Gizmos.color = Color.cyan;
+                else
+                    Gizmos.color = Color.red;
+
+                if (nodeGrid.initialNode)
+                    Gizmos.color = Color.black;
+                if (nodeGrid.destinationNode)
+                    Gizmos.color = Color.black;
+
+                Gizmos.DrawWireSphere(nodeGrid.position, 1);
+            }
+        }
     }
 }

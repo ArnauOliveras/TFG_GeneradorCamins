@@ -9,18 +9,20 @@ using UnityEngine;
 public class ACOManeger : MonoBehaviour
 {
     List<ACOAnt> antsList = new List<ACOAnt>();
-    List<ACONodeGrid> nodeGridsList = new List<ACONodeGrid>();
+    public List<ACONodeGrid> actualNodeGridsList = new List<ACONodeGrid>();
 
     public ACOVillage initialVillage;
     public ACOVillage destinationVillage;
 
-    ACONodeGrid initialNode;
+    int initialNode;
     [HideInInspector]
-    public ACONodeGrid destinationNode;
-
-    bool canGizmos = false;
+    public int destinationNode;
 
     public int drawAntDebug = 1;
+    public int antSpawnNum = 2;
+
+    //[Range(0.0f, 90.0f)]
+    //public float MaxSlope = 35.0f;
 
     public void CreatePathway()
     {
@@ -40,12 +42,10 @@ public class ACOManeger : MonoBehaviour
 
     private void Create()
     {
-
-        nodeGridsList = GetComponent<ACOGrid>().GetACOGrid();
+        actualNodeGridsList = GetComponent<ACOGrid>().nodeGridsList;
         FindInitialAndFinalNode();
         SpawnAnts();
         UpdateAnts();
-        canGizmos = true;
     }
 
     private void UpdateAnts()
@@ -54,14 +54,23 @@ public class ACOManeger : MonoBehaviour
         foreach (ACOAnt ant in antsList)
         {
             while (!ant.UpdateAnt()) { }
-            Debug.Log("Path created with " + ant.nodeGridsList.Count + "interactions");
+            Debug.Log("Ant " + ant.antID + ": path created with " + ant.nodeGridsList.Count + "interactions");
+
+            int i = 0;
+            foreach (ACONodeGrid nodeGrid in ant.nodeGridsList)
+            {
+                i++;
+                actualNodeGridsList[nodeGrid.ID].pheromonesPower += ((float)i / (float)ant.nodeGridsList.Count) * 1000;
+                //Debug.Log("ID: " + nodeGrid.ID + " Power: " + actualNodeGridsList[nodeGrid.ID].pheromonesPower);
+            }
         }
     }
 
     private void SpawnAnts()
     {
         antsList.Clear();
-        antsList.Add(new ACOAnt(initialNode, this));
+        for (int i = 1; i <= antSpawnNum; i++)
+            antsList.Add(new ACOAnt(initialNode, this, i));
     }
 
     private void FindInitialAndFinalNode()
@@ -69,14 +78,14 @@ public class ACOManeger : MonoBehaviour
         float closestDistanceDestination = Mathf.Infinity;
         float closestDistanceInitial = Mathf.Infinity;
 
-        foreach (ACONodeGrid nodeGrid in nodeGridsList)
+        foreach (ACONodeGrid nodeGrid in actualNodeGridsList)
         {
             float distanceInitial = Vector3.Distance(nodeGrid.position, new Vector3(initialVillage.GetPosition().x, nodeGrid.position.y, initialVillage.GetPosition().z));
 
             if (distanceInitial < closestDistanceInitial)
             {
                 closestDistanceInitial = distanceInitial;
-                initialNode = nodeGrid;
+                initialNode = nodeGrid.ID;
             }
 
             float distanceDestination = Vector3.Distance(nodeGrid.position, new Vector3(destinationVillage.GetPosition().x, nodeGrid.position.y, destinationVillage.GetPosition().z));
@@ -84,18 +93,19 @@ public class ACOManeger : MonoBehaviour
             if (distanceDestination < closestDistanceDestination)
             {
                 closestDistanceDestination = distanceDestination;
-                destinationNode = nodeGrid;
+                destinationNode = nodeGrid.ID;
             }
         }
 
-        initialNode.initialNode = true;
-        destinationNode.destinationNode = true;
+        actualNodeGridsList[initialNode].initialNode = true;
+        actualNodeGridsList[destinationNode].destinationNode = true;
     }
 
     public void DrawPathAnt()
     {
         if (antsList != null)
         {
+            Debug.Log("Ant path draw: " + drawAntDebug);
 
             Vector3[] l_points = new Vector3[antsList[drawAntDebug - 1].nodeGridsList.Count];
             int i = 0;
