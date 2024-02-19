@@ -12,9 +12,9 @@ public class ACOManegerButtons : Editor
 
         base.OnInspectorGUI();
 
-        if (GUILayout.Button("Bake Grid"))
+        if (GUILayout.Button("Bake Graph"))
         {
-            maneger.ACOBakeGrid();
+            maneger.ACOBakeGraph();
         }
         if (GUILayout.Button("Create Pathway"))
         {

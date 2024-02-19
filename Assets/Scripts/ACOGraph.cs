@@ -6,31 +6,31 @@ using UnityEngine;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 
-public class ACOGrid : MonoBehaviour
+public class ACOGraph : MonoBehaviour
 {
-    public List<ACONodeGrid> nodeGridsList; 
+    public List<ACONodeGraph> nodeGraphList; 
 
-    public List<ACONodeGrid> GetACOGrid()
+    public List<ACONodeGraph> GetACOGraph()
     {
-        return nodeGridsList;
+        return nodeGraphList;
     }
-    public void SetACOGrid(List<ACONodeGrid> grid)
+    public void SetACOGraph(List<ACONodeGraph> graph)
     {
-        nodeGridsList = grid;
+        nodeGraphList = graph;
     }
 
-    public void ACOShowGrid()
+    public void ACOShowGraph()
     {
         showGuizmos = true;
-        Debug.Log("Show Grid");
+        Debug.Log("Show Graph");
     }
 
-    public void ACOHideGrid()
+    public void ACOHideGraph()
     {
         showGuizmos = false;
-        Debug.Log("Hide Grid");
+        Debug.Log("Hide Graph");
     }
-    public void DestroyThisGrid()
+    public void DestroyThisGraph()
     {
         DestroyImmediate(this);
     }
@@ -52,19 +52,19 @@ public class ACOGrid : MonoBehaviour
     {
         if (showGuizmos)
         {
-            foreach (ACONodeGrid nodeGrid in nodeGridsList)
+            foreach (ACONodeGraph nodeGraph in nodeGraphList)
             {
-                if (nodeGrid.slopePoint < 35f)
+                if (nodeGraph.slopePoint < 35f)
                     Gizmos.color = Color.cyan;
                 else
                     Gizmos.color = Color.red;
 
-                if (nodeGrid.initialNode)
+                if (nodeGraph.initialNode)
                     Gizmos.color = Color.black;
-                if (nodeGrid.destinationNode)
+                if (nodeGraph.destinationNode)
                     Gizmos.color = Color.black;
 
-                Gizmos.DrawWireSphere(nodeGrid.position, 1);
+                Gizmos.DrawWireSphere(nodeGraph.position, 1);
             }
         }
     }

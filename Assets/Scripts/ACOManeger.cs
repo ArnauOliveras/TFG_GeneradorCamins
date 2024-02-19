@@ -5,10 +5,10 @@ using UnityEngine;
 public class ACOManeger : MonoBehaviour
 {
     List<ACOAnt> antsList = new List<ACOAnt>();
-    public List<ACONodeGrid> actualNodeGridsList = new List<ACONodeGrid>();
+    public List<ACONodeGraph> actualNodeGraphist = new List<ACONodeGraph>();
 
     [Header("Bake Settings")]
-    public int distanceEachGridNode = 10;
+    public int distanceEachGraphNode = 5;
     [Range(0.0f, 90.0f)]
     public float maxSlope = 35.0f;
 
@@ -25,13 +25,13 @@ public class ACOManeger : MonoBehaviour
     public int drawAntDebug = 3;
     int antSpawnNum = 3;
 
-    public void ACOBakeGrid()
+    public void ACOBakeGraph()
     {
         if (GetComponent<Terrain>() != null)
         {
-            List<ACONodeGrid> l_nodeGridsList;
+            List<ACONodeGraph> l_nodeGraphList;
 
-            l_nodeGridsList = new List<ACONodeGrid>();
+            l_nodeGraphList = new List<ACONodeGraph>();
 
             Terrain l_terrain = GetComponent<Terrain>();
 
@@ -39,39 +39,37 @@ public class ACOManeger : MonoBehaviour
             int l_numNodesX = (int)l_trrainSize.x + 1;
             int l_numNodesZ = (int)l_trrainSize.z + 1;
 
-            int l_gridX = 0;
-            int l_gridZ = 0;
+            int l_graphX = 0;
+            int l_graphZ = 0;
 
-            for (int x = 0; x < l_numNodesX; x += distanceEachGridNode)
+            for (int x = 0; x < l_numNodesX; x += distanceEachGraphNode)
             {
-                l_gridX++;
-                for (int z = 0; z < l_numNodesZ; z += distanceEachGridNode)
+                l_graphX++;
+                for (int z = 0; z < l_numNodesZ; z += distanceEachGraphNode)
                 {
-                    l_gridZ++;
+                    l_graphZ++;
                     Vector3 l_Position = new Vector3(x, (l_terrain.SampleHeight(new Vector3(x, 0f, z)) + l_terrain.GetPosition().y), z);
 
                     Vector3 l_coordenadaNormalizada = new Vector3((l_Position.x - l_terrain.GetPosition().x) / l_terrain.terrainData.size.x, 0, (l_Position.z - l_terrain.GetPosition().z) / l_terrain.terrainData.size.z);
                     Vector3 l_normal = l_terrain.terrainData.GetInterpolatedNormal(l_coordenadaNormalizada.x, l_coordenadaNormalizada.z);
                     float l_actualNormal = Vector3.Angle(l_normal, Vector3.up);
-                    l_nodeGridsList.Add(new ACONodeGrid(l_Position, l_actualNormal, l_nodeGridsList.Count, maxSlope));
+                    l_nodeGraphList.Add(new ACONodeGraph(l_Position, l_actualNormal, l_nodeGraphList.Count, maxSlope));
                 }
             }
-            l_gridZ = l_gridZ / l_gridX;
-            foreach (ACONodeGrid nodeGrid in l_nodeGridsList)
+            l_graphZ = l_graphZ / l_graphX;
+            foreach (ACONodeGraph nodeGraph in l_nodeGraphList)
             {
-                nodeGrid.SetNeighborNodes(l_nodeGridsList, l_gridZ, l_gridX);
+                nodeGraph.SetNeighborNodes(l_nodeGraphList, l_graphZ, l_graphX);
             }
 
-            if (GetComponent<ACOGrid>() != null)
-                DestroyImmediate(GetComponent<ACOGrid>());
+            if (GetComponent<ACOGraph>() != null)
+                DestroyImmediate(GetComponent<ACOGraph>());
 
-            Debug.Log("Grid dimentions: " + l_gridZ + " x " + l_gridX);
-            Debug.Log("Grid Done With " + l_nodeGridsList.Count + " Nodes");
+            Debug.Log("Graph dimentions: " + l_graphZ + " x " + l_graphX);
+            Debug.Log("Graph Done With " + l_nodeGraphList.Count + " Nodes");
 
-            ACOGrid l_acoGrid = gameObject.AddComponent<ACOGrid>();
-            l_acoGrid.SetACOGrid(l_nodeGridsList);
-
-
+            ACOGraph l_acoGraph = gameObject.AddComponent<ACOGraph>();
+            l_acoGraph.SetACOGraph(l_nodeGraphList);
         }
         else
             Debug.LogError("Terrain component not found in inspector.");
@@ -80,7 +78,7 @@ public class ACOManeger : MonoBehaviour
 
     public void CreatePathway()
     {
-        if (GetComponent<ACOGrid>() != null)
+        if (GetComponent<ACOGraph>() != null)
         {
             if (initialVillage != null && destinationVillage != null)
             {
@@ -91,12 +89,12 @@ public class ACOManeger : MonoBehaviour
                 Debug.LogError("You Have To Instantiate The Villages In The Inspector");
         }
         else
-            Debug.LogError("You Have To Bake A Grid");
+            Debug.LogError("You Have To Bake A Graph");
     }
 
     private void Create()
     {
-        actualNodeGridsList = GetComponent<ACOGrid>().nodeGridsList;
+        actualNodeGraphist = GetComponent<ACOGraph>().nodeGraphList;
         FindInitialAndFinalNode();
         SpawnAnts();
         UpdateAnts();
@@ -110,14 +108,14 @@ public class ACOManeger : MonoBehaviour
         foreach (ACOAnt ant in antsList)
         {
             while (!ant.UpdateAnt()) { }
-            Debug.Log("Ant " + ant.antID + ": path created with " + ant.nodeGridsList.Count + "interactions");
+            Debug.Log("Ant " + ant.antID + ": path created with " + ant.nodeGraphList.Count + "interactions");
 
             int i = 0;
-            foreach (ACONodeGrid nodeGrid in ant.nodeGridsList)
+            foreach (ACONodeGraph nodeGraph in ant.nodeGraphList)
             {
                 i++;
-                actualNodeGridsList[nodeGrid.ID].pheromonesPower += ((float)i / (float)ant.nodeGridsList.Count) * 1000;
-                //Debug.Log("ID: " + nodeGrid.ID + " Power: " + actualNodeGridsList[nodeGrid.ID].pheromonesPower);
+                actualNodeGraphist[nodeGraph.ID].pheromonesPower += ((float)i / (float)ant.nodeGraphList.Count) * 1000;
+                //Debug.Log("ID: " + nodeGraph.ID + " Power: " + actualNodeGraphList[nodeGraph.ID].pheromonesPower);
             }
         }
     }
@@ -134,27 +132,27 @@ public class ACOManeger : MonoBehaviour
         float closestDistanceDestination = Mathf.Infinity;
         float closestDistanceInitial = Mathf.Infinity;
 
-        foreach (ACONodeGrid nodeGrid in actualNodeGridsList)
+        foreach (ACONodeGraph nodeGraph in actualNodeGraphist)
         {
-            float distanceInitial = Vector3.Distance(nodeGrid.position, new Vector3(initialVillage.GetPosition().x, nodeGrid.position.y, initialVillage.GetPosition().z));
+            float distanceInitial = Vector3.Distance(nodeGraph.position, new Vector3(initialVillage.GetPosition().x, nodeGraph.position.y, initialVillage.GetPosition().z));
 
             if (distanceInitial < closestDistanceInitial)
             {
                 closestDistanceInitial = distanceInitial;
-                initialNode = nodeGrid.ID;
+                initialNode = nodeGraph.ID;
             }
 
-            float distanceDestination = Vector3.Distance(nodeGrid.position, new Vector3(destinationVillage.GetPosition().x, nodeGrid.position.y, destinationVillage.GetPosition().z));
+            float distanceDestination = Vector3.Distance(nodeGraph.position, new Vector3(destinationVillage.GetPosition().x, nodeGraph.position.y, destinationVillage.GetPosition().z));
 
             if (distanceDestination < closestDistanceDestination)
             {
                 closestDistanceDestination = distanceDestination;
-                destinationNode = nodeGrid.ID;
+                destinationNode = nodeGraph.ID;
             }
         }
 
-        actualNodeGridsList[initialNode].initialNode = true;
-        actualNodeGridsList[destinationNode].destinationNode = true;
+        actualNodeGraphist[initialNode].initialNode = true;
+        actualNodeGraphist[destinationNode].destinationNode = true;
     }
 
     public void DrawPathAnt()
@@ -163,9 +161,9 @@ public class ACOManeger : MonoBehaviour
         {
             Debug.Log("Ant path draw: " + drawAntDebug);
 
-            Vector3[] l_points = new Vector3[antsList[drawAntDebug - 1].nodeGridsList.Count];
+            Vector3[] l_points = new Vector3[antsList[drawAntDebug - 1].nodeGraphList.Count];
             int i = 0;
-            foreach (ACONodeGrid node in antsList[drawAntDebug - 1].nodeGridsList)
+            foreach (ACONodeGraph node in antsList[drawAntDebug - 1].nodeGraphList)
             {
                 l_points[i] = new Vector3(node.position.x, node.position.y + 0.5f, node.position.z);
                 i++;
