@@ -54,17 +54,13 @@ public class ACOAnt
         }
 
         if (l_powersNode != null)
-        {
-            actualNode = l_powersNode.ID;
-            AddNodeAtThisList(l_powersNode.ID);
-        }
+            SetActualNode(l_powersNode.ID);
         else
         {
             if (noWayFound)
             {
                 int l_randomNumber = Random.Range(0, availableNodes);
-                actualNode = neighborNodesGraphList[l_randomNumber].ID;
-                AddNodeAtThisList(l_randomNumber);
+                SetActualNode(neighborNodesGraphList[l_randomNumber].ID);
             }
             else
             {
@@ -79,8 +75,7 @@ public class ACOAnt
                         l_nearestNode = node.ID;
                     }
                 }
-                actualNode = l_nearestNode;
-                AddNodeAtThisList(l_nearestNode);
+                SetActualNode(l_nearestNode);
             }
         }
     }
@@ -88,6 +83,9 @@ public class ACOAnt
     {
         availableNodes = 0;
         neighborNodesGraphList.Clear();
+
+        List<ACONodeGraph> l_NeighborNodesGraphListV2 = new List<ACONodeGraph>();
+        int l_AvailableNodesV2 = 0;
 
         foreach (int neighborNode in acoManeger.actualNodeGraphist[actualNode].neighborNodesGraphList)
         {
@@ -99,11 +97,15 @@ public class ACOAnt
                     availableNodes++;
                     noWayFound = false;
                 }
+                else
+                {
+                    l_NeighborNodesGraphListV2.Add(acoManeger.actualNodeGraphist[neighborNode]);
+                    l_AvailableNodesV2++;
+                }
                 if (acoManeger.actualNodeGraphist[neighborNode].destinationNode)
                 {
                     findDestination = true;
-                    actualNode = neighborNode;
-                    AddNodeAtThisList(neighborNode);
+                    SetActualNode(neighborNode);
                     return;
                 }
             }
@@ -111,21 +113,13 @@ public class ACOAnt
         if (availableNodes == 0)
         {
             noWayFound = true;
-            foreach (var neighborNode in acoManeger.actualNodeGraphist[actualNode].neighborNodesGraphList)
-            {
-                if (neighborNode != -1/* && acoManeger.actualNodeGraphList[neighborNode].slopePoint <= acoManeger.MaxSlope*/)
-                {
-                    neighborNodesGraphList.Add(acoManeger.actualNodeGraphist[neighborNode]);
-                    availableNodes++;
-
-                }
-            }
+            neighborNodesGraphList = l_NeighborNodesGraphListV2;
+            availableNodes = l_AvailableNodesV2;
         }
-
-
     }
-    void AddNodeAtThisList(int l_NodeID)
+    void SetActualNode(int l_NodeID)
     {
+        actualNode = l_NodeID;
         ACONodeGraph l_findID = nodeGraphList.Find(find => find.ID == l_NodeID);
 
         if (l_findID != null) 
