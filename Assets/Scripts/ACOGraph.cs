@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
@@ -67,5 +68,28 @@ public class ACOGraph : MonoBehaviour
                 Gizmos.DrawWireSphere(nodeGraph.position, 1);
             }
         }
+    }
+}
+
+[CustomEditor(typeof(ACOGraph))]
+public class ACOGraphButtons : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        ACOGraph graph = (ACOGraph)target;
+
+        if (GUILayout.Button("Show Graph"))
+        {
+            graph.ACOShowGraph();
+        }
+        if (GUILayout.Button("Hide Graph"))
+        {
+            graph.ACOHideGraph();
+        }
+        if (GUILayout.Button("Destroy This Graph"))
+        {
+            graph.DestroyThisGraph();
+        }
+        base.OnInspectorGUI();
     }
 }

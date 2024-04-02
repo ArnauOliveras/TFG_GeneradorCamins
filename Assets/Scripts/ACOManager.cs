@@ -1,30 +1,39 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-public class ACOManeger : MonoBehaviour
+public class ACOManager : MonoBehaviour
 {
-    List<ACOAnt> antsList = new List<ACOAnt>();
+    public List<ACOAnt> antsList = new List<ACOAnt>();
     public List<ACONodeGraph> actualNodeGraphist = new List<ACONodeGraph>();
 
-    [Header("Bake Settings")]
+    [Header("Bake Graph Settings")]
     public int distanceEachGraphNode = 5;
     [Range(0.0f, 90.0f)]
     public float maxSlope = 35.0f;
+    [Range(0.0f, 90.0f)]
+    public float recommendedSlope = 25.0f;
 
     [Header("General Settings")]
     public ACOVillage initialVillage;
     public ACOVillage destinationVillage;
+    ACOGraph acoGraph;
 
-    int initialNode;
-    [HideInInspector] 
+    [HideInInspector]
+    public int initialNode;
+    [HideInInspector]
     public int destinationNode;
 
-    [Header("Draw Settings")]
-    [Range(1, 3)]
-    public int drawAntDebug = 3;
-    int antSpawnNum = 3;
+    [HideInInspector]
+    public int m_MAXInteractions = 0;
+    public int antSpawnNum = 1;
 
+    [Header("Draw Settings")]
+    public int drawAntDebug = 1;
+
+    #region Graph_Creation
     public void ACOBakeGraph()
     {
         if (GetComponent<Terrain>() != null)
@@ -62,69 +71,50 @@ public class ACOManeger : MonoBehaviour
                 nodeGraph.SetNeighborNodes(l_nodeGraphList, l_graphZ, l_graphX);
             }
 
-            if (GetComponent<ACOGraph>() != null)
-                DestroyImmediate(GetComponent<ACOGraph>());
-
             Debug.Log("Graph dimentions: " + l_graphZ + " x " + l_graphX);
             Debug.Log("Graph Done With " + l_nodeGraphList.Count + " Nodes");
 
-            ACOGraph l_acoGraph = gameObject.AddComponent<ACOGraph>();
-            l_acoGraph.SetACOGraph(l_nodeGraphList);
+            actualNodeGraphist = new List<ACONodeGraph>();
+            actualNodeGraphist = l_nodeGraphList;
         }
         else
             Debug.LogError("Terrain component not found in inspector.");
     }
+    #endregion
 
-
+    #region Create_Path
     public void CreatePathway()
     {
-        if (GetComponent<ACOGraph>() != null)
+
+        if (initialVillage != null && destinationVillage != null)
         {
-            if (initialVillage != null && destinationVillage != null)
-            {
-                Create();
-                Debug.Log("Pathway Created Successfully");
-            }
-            else
-                Debug.LogError("You Have To Instantiate The Villages In The Inspector");
+            Create();
+            Debug.Log("Pathway Created Successfully");
         }
         else
-            Debug.LogError("You Have To Bake A Graph");
+            Debug.LogError("You Have To Instantiate The Villages In The Inspector");
+
     }
 
     private void Create()
     {
-        actualNodeGraphist = GetComponent<ACOGraph>().nodeGraphList;
+        ACOBakeGraph();
+        StartCreate();
         FindInitialAndFinalNode();
         SpawnAnts();
         UpdateAnts();
         drawAntDebug = antsList.Count;
         DrawPathAnt();
+        EndCreate();
     }
 
-    private void UpdateAnts()
+    private void EndCreate()
     {
-
-        foreach (ACOAnt ant in antsList)
-        {
-            while (!ant.UpdateAnt()) { }
-            Debug.Log("Ant " + ant.antID + ": path created with " + ant.nodeGraphList.Count + "interactions");
-
-            int i = 0;
-            foreach (ACONodeGraph nodeGraph in ant.nodeGraphList)
-            {
-                i++;
-                actualNodeGraphist[nodeGraph.ID].pheromonesPower += ((float)i / (float)ant.nodeGraphList.Count) * 1000;
-                //Debug.Log("ID: " + nodeGraph.ID + " Power: " + actualNodeGraphList[nodeGraph.ID].pheromonesPower);
-            }
-        }
     }
 
-    private void SpawnAnts()
+    private void StartCreate()
     {
-        antsList.Clear();
-        for (int i = 1; i <= antSpawnNum; i++)
-            antsList.Add(new ACOAnt(initialNode, this, i));
+        antsList = new List<ACOAnt>();
     }
 
     private void FindInitialAndFinalNode()
@@ -150,11 +140,89 @@ public class ACOManeger : MonoBehaviour
                 destinationNode = nodeGraph.ID;
             }
         }
-
         actualNodeGraphist[initialNode].initialNode = true;
         actualNodeGraphist[destinationNode].destinationNode = true;
     }
 
+    private void SpawnAnts()
+    {
+        for (int i = 1; i <= antSpawnNum; i++)
+        {
+            antsList.Add(new ACOAnt(initialNode, this, i, GetComponent<ACOBlackboard>()));
+        }
+    }
+
+    private void UpdateAnts()
+    {
+        int l_lostAnts = 0;
+        int l_endAnts = 0;
+        int l_MAXmultiplier = GetComponent<ACOBlackboard>().MAXMultiplier;
+
+        foreach (ACOAnt ant in antsList)
+        {
+            while (!ant.UpdateAnt()) { }
+
+            if (ant.findDestination)
+            {
+                l_endAnts++;
+                //Debug.Log("Ant " + ant.antID + ": path created with " + ant.interactions + "interactions");
+            }
+            if (ant.lostAnt)
+            {
+                l_lostAnts++;
+                //Debug.Log("Ant " + ant.antID + " is lost");
+            }
+
+            if (ant.antID == 2)
+            {
+                actualNodeGraphist.ForEach(n => n.pheromonesPower = 0);
+                m_MAXInteractions = ant.interactions * l_MAXmultiplier;
+                Debug.Log("Max Interactions to lost: " + m_MAXInteractions);
+            }
+            if (ant.antID == antSpawnNum - 1)
+            {
+                actualNodeGraphist.ForEach(n => n.pheromonesPower = 0);
+            }
+
+
+
+            if (!ant.lostAnt)
+            {
+                if (!ant.analyzingAnt)
+                {
+                    int i = m_MAXInteractions / l_MAXmultiplier;
+                    for (int j = ant.nodeGraphList.Count - 1; j >= ant.nodeGraphList.Count - (m_MAXInteractions / l_MAXmultiplier) - 1; j--)
+                    {
+                        if (j < 0)
+                            break;
+
+                        actualNodeGraphist[ant.nodeGraphList[j].ID].pheromonesPower += ((float)i / ((float)m_MAXInteractions/ l_MAXmultiplier));
+                        i--;
+                    }
+                }
+                else
+                {
+                    int i = 0;
+                    foreach (ACONodeGraph nodeGraph in ant.nodeGraphList)
+                    {
+                        i++;
+                        actualNodeGraphist[nodeGraph.ID].pheromonesPower += ((float)i / (float)ant.nodeGraphList.Count);
+                    }
+                }
+            }
+
+        }
+
+        Debug.Log("Lost ants: " + l_lostAnts + " / " + (antSpawnNum - 4));
+        Debug.Log("Find Destination ants: " + (l_endAnts - 4) + " / " + (antSpawnNum - 4));
+
+    }
+
+
+
+    #endregion
+
+    #region Draw
     public void DrawPathAnt()
     {
         if (antsList != null)
@@ -190,6 +258,30 @@ public class ACOManeger : MonoBehaviour
     {
         Debug.LogError("Encara no està implementat");
     }
+    #endregion
 
+}
 
+[CustomEditor(typeof(ACOManager))]
+public class ACOManagerButtons : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        ACOManager manager = (ACOManager)target;
+
+        if (GUILayout.Button("Create Pathway"))
+        {
+            manager.CreatePathway();
+        }
+        if (GUILayout.Button("Draw Path Ant Selected"))
+        {
+            manager.DrawPathAnt();
+        }
+        if (GUILayout.Button("Draw Texture"))
+        {
+            manager.DrawTexture();
+        }
+
+        base.OnInspectorGUI();
+    }
 }

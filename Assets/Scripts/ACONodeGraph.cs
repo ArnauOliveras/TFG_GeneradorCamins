@@ -1,24 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class ACONodeGraph
 {
     public int ID = -1;
-    public Vector3 position;
+    public Vector3 position = Vector3.zero;
     public float slopePoint;
 
     public List<int> neighborNodesGraphList = new List<int>();
+    public List<int> neighborNeighborNodesGraphList = new List<int>();
     bool haveNeighbor = false;
 
     public bool initialNode = false;
     public bool destinationNode = false;
 
-
     public float pheromonesPower;
 
     float maxSlope;
+
+    public float probabilityToGoThisNode = 0;
 
     public ACONodeGraph(Vector3 l_position, float l_slope, int l_ID, float l_MaxSlope)
     {
@@ -70,7 +73,36 @@ public class ACONodeGraph
                     neighborNodesGraphList.Add(-1);
             }
             haveNeighbor = true;
+            neighborNeighborNodesGraphList = neighborNodesGraphList;
         }
     }
 
+    /*public void SetNeighborNeighborNodes(List<ACONodeGraph> acoNodes)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            List<int> l_IDNodes = new List<int>();
+            foreach (int node in neighborNeighborNodesGraphList)
+            {
+                if (node != -1)
+                {
+                    foreach (int n in acoNodes[node].neighborNodesGraphList)
+                    {
+                        if (!neighborNeighborNodesGraphList.Contains(n) && n != ID)
+                            l_IDNodes.Add(n);
+                    }
+                }
+
+            }
+            if (l_IDNodes.Count > 0)
+            {
+                foreach (int n in l_IDNodes)
+                {
+                    neighborNeighborNodesGraphList.Add(n);
+                }
+            }
+        }
+        if (ID == 2000)
+            Debug.Log(neighborNeighborNodesGraphList.Count);
+    }*/
 }
