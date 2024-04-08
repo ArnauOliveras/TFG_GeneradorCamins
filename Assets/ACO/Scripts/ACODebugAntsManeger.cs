@@ -25,7 +25,7 @@ public class ACODebugAntsManeger : MonoBehaviour
             {
                 GameObject l_ThisAnt = Instantiate(perfabDebugAnt, ant.nodeGraphList[0].position, Quaternion.identity);
                 l_ThisAnt.transform.parent = transform;
-                l_ThisAnt.name = "Ant " + ant.antID;
+                l_ThisAnt.name = "Ant " + ant.ID;
                 ACODebugAnts l_Ant = l_ThisAnt.GetComponent<ACODebugAnts>();
                 l_Ant.nodeGraphList = ant.nodeGraphList;
                 l_Ant.speed = antSpeed;

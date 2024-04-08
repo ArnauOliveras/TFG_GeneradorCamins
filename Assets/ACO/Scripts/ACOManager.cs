@@ -1,25 +1,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
 public class ACOManager : MonoBehaviour
 {
-    public List<ACOAnt> antsList = new List<ACOAnt>();
-    public List<ACONodeGraph> actualNodeGraphist = new List<ACONodeGraph>();
+    public List<ACOAnt> antsList;
+    public List<ACONodeGraph> actualNodeGraphist;
 
+    int distanceEachGraphNode = 5;
     [Header("Bake Graph Settings")]
-    public int distanceEachGraphNode = 5;
     [Range(0.0f, 90.0f)]
     public float maxSlope = 35.0f;
     [Range(0.0f, 90.0f)]
     public float recommendedSlope = 25.0f;
 
     [Header("General Settings")]
-    public ACOVillage initialVillage;
-    public ACOVillage destinationVillage;
-    ACOGraph acoGraph;
+    public Transform initialPosition;
+    public Transform destinationPosition;
 
     [HideInInspector]
     public int initialNode;
@@ -28,10 +28,24 @@ public class ACOManager : MonoBehaviour
 
     [HideInInspector]
     public int m_MAXInteractions = 0;
-    public int antSpawnNum = 1;
+
+    public int antSpawnNum = 200;
 
     [Header("Draw Settings")]
     public int drawAntDebug = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     #region Graph_Creation
     public void ACOBakeGraph()
@@ -74,7 +88,6 @@ public class ACOManager : MonoBehaviour
             Debug.Log("Graph dimentions: " + l_graphZ + " x " + l_graphX);
             Debug.Log("Graph Done With " + l_nodeGraphList.Count + " Nodes");
 
-            actualNodeGraphist = new List<ACONodeGraph>();
             actualNodeGraphist = l_nodeGraphList;
         }
         else
@@ -86,7 +99,7 @@ public class ACOManager : MonoBehaviour
     public void CreatePathway()
     {
 
-        if (initialVillage != null && destinationVillage != null)
+        if (initialPosition != null && destinationPosition != null)
         {
             Create();
             Debug.Log("Pathway Created Successfully");
@@ -98,8 +111,8 @@ public class ACOManager : MonoBehaviour
 
     private void Create()
     {
-        ACOBakeGraph();
         StartCreate();
+        ACOBakeGraph();
         FindInitialAndFinalNode();
         SpawnAnts();
         UpdateAnts();
@@ -110,11 +123,18 @@ public class ACOManager : MonoBehaviour
 
     private void EndCreate()
     {
+        actualNodeGraphist.ForEach(n => n.pheromonesPower = 0);
     }
 
     private void StartCreate()
     {
+        antsList = null;
+        actualNodeGraphist = null;
         antsList = new List<ACOAnt>();
+        actualNodeGraphist = new List<ACONodeGraph>();
+        initialNode = 0;
+        destinationNode = 0;
+        m_MAXInteractions = 0;
     }
 
     private void FindInitialAndFinalNode()
@@ -124,7 +144,7 @@ public class ACOManager : MonoBehaviour
 
         foreach (ACONodeGraph nodeGraph in actualNodeGraphist)
         {
-            float distanceInitial = Vector3.Distance(nodeGraph.position, new Vector3(initialVillage.GetPosition().x, nodeGraph.position.y, initialVillage.GetPosition().z));
+            float distanceInitial = Vector3.Distance(nodeGraph.position, new Vector3(initialPosition.position.x, nodeGraph.position.y, initialPosition.position.z));
 
             if (distanceInitial < closestDistanceInitial)
             {
@@ -132,7 +152,7 @@ public class ACOManager : MonoBehaviour
                 initialNode = nodeGraph.ID;
             }
 
-            float distanceDestination = Vector3.Distance(nodeGraph.position, new Vector3(destinationVillage.GetPosition().x, nodeGraph.position.y, destinationVillage.GetPosition().z));
+            float distanceDestination = Vector3.Distance(nodeGraph.position, new Vector3(destinationPosition.position.x, nodeGraph.position.y, destinationPosition.position.z));
 
             if (distanceDestination < closestDistanceDestination)
             {
@@ -160,29 +180,31 @@ public class ACOManager : MonoBehaviour
 
         foreach (ACOAnt ant in antsList)
         {
+            ant.StartAnt();
+
             while (!ant.UpdateAnt()) { }
 
             if (ant.findDestination)
             {
                 l_endAnts++;
-                //Debug.Log("Ant " + ant.antID + ": path created with " + ant.interactions + "interactions");
+                Debug.Log("Ant " + ant.ID + ": path created with " + ant.interactions + "interactions");
             }
             if (ant.lostAnt)
             {
                 l_lostAnts++;
-                //Debug.Log("Ant " + ant.antID + " is lost");
+                //Debug.Log("Ant " + ant.ID + " is lost");
             }
 
-            if (ant.antID == 2)
+            if (ant.ID == 2)
             {
                 actualNodeGraphist.ForEach(n => n.pheromonesPower = 0);
                 m_MAXInteractions = ant.interactions * l_MAXmultiplier;
                 Debug.Log("Max Interactions to lost: " + m_MAXInteractions);
             }
-            if (ant.antID == antSpawnNum - 1)
+            /*if (ant.ID == antSpawnNum - 1)
             {
                 actualNodeGraphist.ForEach(n => n.pheromonesPower = 0);
-            }
+            }*/
 
 
 
@@ -190,13 +212,13 @@ public class ACOManager : MonoBehaviour
             {
                 if (!ant.analyzingAnt)
                 {
-                    int i = m_MAXInteractions / l_MAXmultiplier;
-                    for (int j = ant.nodeGraphList.Count - 1; j >= ant.nodeGraphList.Count - (m_MAXInteractions / l_MAXmultiplier) - 1; j--)
+                    int i = m_MAXInteractions;// / l_MAXmultiplier;
+                    for (int j = ant.nodeGraphList.Count - 1; j >= ant.nodeGraphList.Count - (m_MAXInteractions) - 1; j--)// / l_MAXmultiplier) -1; j--)
                     {
                         if (j < 0)
                             break;
 
-                        actualNodeGraphist[ant.nodeGraphList[j].ID].pheromonesPower += ((float)i / ((float)m_MAXInteractions/ l_MAXmultiplier));
+                        actualNodeGraphist[ant.nodeGraphList[j].ID].pheromonesPower += ((float)i / ((float)m_MAXInteractions));// / l_MAXmultiplier));
                         i--;
                     }
                 }

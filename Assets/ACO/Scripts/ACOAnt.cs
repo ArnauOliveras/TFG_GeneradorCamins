@@ -11,7 +11,7 @@ public class ACOAnt
     ACOManager acoManager;
     ACOBlackboard acoBlackboard;
 
-    public int antID;
+    public int ID;
     public bool analyzingAnt = false;
 
     int actualNode;
@@ -27,18 +27,81 @@ public class ACOAnt
 
     Vector3 position;
     public int interactions = 0;
+
+    [Header("Initial Power")]
+    public float initialPower;
+
+    [Header("Power of pheromones")]
+    public float powersNode1;
+    public float powersNode2;
+    public float powersNode3;
+
+    [Header("Closer to the final destination")]
+    public float nearestNode1;
+    public float nearestNode2;
+    public float nearestNode3;
+
+    [Header("Slope favoritisms")]
+    public float slopeFavoritismsREC;
+    public float slopeFavoritismsMAX;
+
+    [Header("Next Slope Similar")]
+    public float similarNode1;
+    public float similarNode2;
+    public float similarNode3;
+    public float similarNode4;
+    public float similarNode5;
+    public float similarNode6;
+    public float similarNode7;
+    public float similarNode8;
+
+    [Header("MAX Multiplier")]
+    public int MAXMultiplier;
+
+
+
     public ACOAnt(int l_initialNode, ACOManager l_manager, int l_ID, ACOBlackboard l_acoBlackboard)
     {
         actualNode = l_initialNode;
         acoManager = l_manager;
-        antID = l_ID;
+        ID = l_ID;
         nodeGraphList.Add(acoManager.actualNodeGraphist[l_initialNode]);
         position = acoManager.actualNodeGraphist[acoManager.initialNode].position;
         acoBlackboard = l_acoBlackboard;
 
         //The ants with IDs 1, 2, the penultimate, and the last one are analyzers.
-        if (antID <= 2 || antID >= acoManager.antSpawnNum - 1)
+        if (ID <= 2 || ID >= acoManager.antSpawnNum - 3)
             analyzingAnt = true;
+    }
+    public void StartAnt()
+    {
+
+        initialPower = acoBlackboard.initialPower;
+
+        powersNode1 = acoBlackboard.powersNode1;
+        powersNode2 = acoBlackboard.powersNode2;
+        powersNode3 = acoBlackboard.powersNode3;
+
+        nearestNode1 = acoBlackboard.nearestNode1;
+        nearestNode2 = acoBlackboard.nearestNode2;
+        nearestNode3 = acoBlackboard.nearestNode3;
+
+        slopeFavoritismsREC = acoBlackboard.slopeFavoritismsREC;
+        slopeFavoritismsMAX = acoBlackboard.slopeFavoritismsMAX;
+
+        similarNode1 = acoBlackboard.similarNode1;
+        similarNode2 = acoBlackboard.similarNode2;
+        similarNode3 = acoBlackboard.similarNode3;
+        similarNode4 = acoBlackboard.similarNode4;
+        similarNode5 = acoBlackboard.similarNode5;
+        similarNode6 = acoBlackboard.similarNode6;
+        similarNode7 = acoBlackboard.similarNode7;
+        similarNode8 = acoBlackboard.similarNode8;
+
+        MAXMultiplier = acoBlackboard.MAXMultiplier;
+
+        if (ID >= (acoManager.antSpawnNum / 2))
+            powersNode1 += (ID - (acoManager.antSpawnNum / 2));
     }
     public bool UpdateAnt()
     {
@@ -66,6 +129,12 @@ public class ACOAnt
         interactions++;
         if (interactions == acoManager.m_MAXInteractions && !analyzingAnt)
             lostAnt = true;
+
+        if ((interactions == acoManager.m_MAXInteractions * 5 && analyzingAnt) && !(ID <= 2))
+        {
+            Debug.LogError("Fail ant " + ID + " , MAX interactions: " + acoManager.m_MAXInteractions * 5);
+            lostAnt = true;
+        }
 
     }
 
@@ -129,7 +198,7 @@ public class ACOAnt
             else
                 neighborNode.probabilityToGoThisNode = 0.0f;*/
 
-            neighborNode.probabilityToGoThisNode = acoBlackboard.initialPower;
+            neighborNode.probabilityToGoThisNode = initialPower;
         }
 
         /*
@@ -215,21 +284,21 @@ public class ACOAnt
             i++;
         }
         if (l_SimilarNode1 != -1)
-            neighborNodesGraphList[l_SimilarNode1].probabilityToGoThisNode *= acoBlackboard.similarNode1;
+            neighborNodesGraphList[l_SimilarNode1].probabilityToGoThisNode *= similarNode1;
         if (l_SimilarNode2 != -1)
-            neighborNodesGraphList[l_SimilarNode2].probabilityToGoThisNode *= acoBlackboard.similarNode2;
+            neighborNodesGraphList[l_SimilarNode2].probabilityToGoThisNode *= similarNode2;
         if (l_SimilarNode3 != -1)
-            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= acoBlackboard.similarNode3;
+            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= similarNode3;
         if (l_SimilarNode4 != -1)
-            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= acoBlackboard.similarNode4;
+            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= similarNode4;
         if (l_SimilarNode5 != -1)
-            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= acoBlackboard.similarNode5;
+            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= similarNode5;
         if (l_SimilarNode6 != -1)
-            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= acoBlackboard.similarNode6;
+            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= similarNode6;
         if (l_SimilarNode7 != -1)
-            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= acoBlackboard.similarNode7;
+            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= similarNode7;
         if (l_SimilarNode8 != -1)
-            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= acoBlackboard.similarNode8;
+            neighborNodesGraphList[l_SimilarNode3].probabilityToGoThisNode *= similarNode8;
 
     }
 
@@ -246,10 +315,10 @@ public class ACOAnt
             if (neighborNodesGraphList[i].probabilityToGoThisNode != 0)
             {
                 if (node.slopePoint <= acoManager.recommendedSlope)
-                    neighborNodesGraphList[i].probabilityToGoThisNode *= acoBlackboard.slopeFavoritismsREC;
+                    neighborNodesGraphList[i].probabilityToGoThisNode *= slopeFavoritismsREC;
                 else if (node.slopePoint <= acoManager.maxSlope)
                 {
-                    neighborNodesGraphList[i].probabilityToGoThisNode *= acoBlackboard.slopeFavoritismsMAX;
+                    neighborNodesGraphList[i].probabilityToGoThisNode *= slopeFavoritismsMAX;
                     if (neighborNodesGraphList[i].probabilityToGoThisNode < 0)
                         neighborNodesGraphList[i].probabilityToGoThisNode = 0;
                 }
@@ -290,11 +359,11 @@ public class ACOAnt
             i++;
         }
         if (l_nearestNode1 != -1)
-            neighborNodesGraphList[l_nearestNode1].probabilityToGoThisNode += acoBlackboard.nearestNode1;
+            neighborNodesGraphList[l_nearestNode1].probabilityToGoThisNode += nearestNode1;
         if (l_nearestNode2 != -1)
-            neighborNodesGraphList[l_nearestNode2].probabilityToGoThisNode += acoBlackboard.nearestNode2;
+            neighborNodesGraphList[l_nearestNode2].probabilityToGoThisNode += nearestNode2;
         if (l_nearestNode3 != -1)
-            neighborNodesGraphList[l_nearestNode3].probabilityToGoThisNode += acoBlackboard.nearestNode3;
+            neighborNodesGraphList[l_nearestNode3].probabilityToGoThisNode += nearestNode3;
     }
 
     private void AnalyzePheromonesPower()
@@ -329,11 +398,11 @@ public class ACOAnt
             i++;
         }
         if (l_powersNode1 != -1)
-            neighborNodesGraphList[l_powersNode1].probabilityToGoThisNode += acoBlackboard.powersNode1;
+            neighborNodesGraphList[l_powersNode1].probabilityToGoThisNode += powersNode1;
         if (l_powersNode2 != -1)
-            neighborNodesGraphList[l_powersNode2].probabilityToGoThisNode += acoBlackboard.powersNode2;
+            neighborNodesGraphList[l_powersNode2].probabilityToGoThisNode += powersNode2;
         if (l_powersNode3 != -1)
-            neighborNodesGraphList[l_powersNode3].probabilityToGoThisNode += acoBlackboard.powersNode3;
+            neighborNodesGraphList[l_powersNode3].probabilityToGoThisNode += powersNode3;
     }
 
     private void MoveNextNode()
@@ -372,7 +441,7 @@ public class ACOAnt
     {
         float l_pheromonesPower = 0;
         ACONodeGraph l_powersNode = null;
-        if (antID != 1)
+        if (ID != 1)
         {
             foreach (ACONodeGraph node in neighborNodesGraphList)
             {
